@@ -13,18 +13,25 @@ export const elements = {
 };
 
 elements.error.style.display = 'none';
+elements.select.style.display = 'none';
 
 function fetchSuccess(breeds) {
+    elements.loader.style.display = 'none';
     setTimeout(() => {
+        elements.select.style.display = 'block';
         const option = breeds.map(breed => `<option value="${breed.id}">${breed.name}</option>`).join("");
         elements.select.insertAdjacentHTML('beforeend', option);
     }, 500);
 };
 
 function fetchError(){
+    elements.error.style.display = 'block';
+    elements.select.style.display = 'none';
+    elements.loader.style.display = 'none';
     setTimeout(() => {
         elements.select.style.display = 'block';
         elements.select.value = '';
+        elements.info.style.display = 'none';
     }, 500);
 };
 
@@ -32,12 +39,16 @@ window.addEventListener('DOMContentLoaded', () => {
     fetchBreeds()
     .then(fetchSuccess)
     .catch(fetchError)
+    .finally(() => {
+        elements.loader.style.display = 'none';
+    })
 });
 
 elements.select.addEventListener('change', handlerSelect);
 
 function handlerSelect(evt) {
     const selectBreed = elements.select.value;
+    elements.loader.style.display = 'block';
     fetchCatByBreed(selectBreed)
     .then(
         cat => {
@@ -47,12 +58,12 @@ function handlerSelect(evt) {
             <p>Description: ${cat.breeds[0].description}</p>
             <p>Temperament: ${cat.breeds[0].temperament}</p>`
             console.log(cat);
+            elements.error.style.display = 'none';
         })
     .catch(fetchError)
-    elements.loader.style.display = 'none';
-    // elements.error.style.display = 'none';
+    .finally(() => {
+        elements.loader.style.display = 'none';
+        elements.select.style.display = 'block';
+        elements.info.style.display = 'block';
+    })
 };
-
-
-
-
